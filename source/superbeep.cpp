@@ -1,0 +1,185 @@
+#include  <unistd.h> // for gnu getopt
+#include <string>
+#include <iostream>
+#include <ao/ao.h>
+#include <cmath>
+#include <algorithm> // for max
+#include <sstream>
+#include <map>
+using namespace std;
+
+// Copyright 2008 Barney Laurance <barney@redmagic.org.uk>
+// You may use and distribute this code under the terms of the GNU
+// General Public Licence version 3, as published by the Free Software
+// Foundation
+
+// A program to beep. Using gnu getopt parsing options, and stealing
+// code from ao_example, to use libao. Will read note names in
+// scientific pitch notation, as well as lengths and volumes.  Should
+// fade in and out quickly at begining and end to prevent clicks and
+// pops.
+
+        float a4=440;
+        float fade_time = 0.005; // time in seconds to fade in and out of each note.
+
+        float frequency = a4*2; // defualt frequency is a5
+        float duration = 0.5; // default duration is 1/2 second.
+        double volume = 1;
+
+    map<char,int> notes; // notes and their pitch above or below A in semitones.
+
+
+bool play(float freq, float length, double volume){
+        ao_device *device;
+        ao_sample_format format;
+        int default_driver;
+        char *buffer;
+        int buf_size;
+        int sample;
+        int i;
+
+
+        volume=max(1.0,volume);
+
+        /* -- Initialize -- */
+
+        ao_initialize();
+
+        /* -- Setup for default driver -- */
+
+        default_driver = ao_default_driver_id();
+
+        format.bits = 16;
+        format.channels = 2;
+        format.rate = 44100;
+        format.byte_format = AO_FMT_LITTLE;
+
+        /* -- Open driver -- */
+        device = ao_open_live(default_driver, &format, NULL /* no options */);
+        if (device == NULL) {
+                fprintf(stderr, "Error opening device.\n");
+                return 1;
+        }
+
+        /* -- Play some stuff -- */
+        buf_size = format.bits/8 * format.channels * format.rate * length;
+        //buffer = calloc(buf_size, sizeof(char));
+        buffer = new char[buf_size];
+
+        for (i = 0; i < format.rate*length; i++) {
+                sample = (int)(0.75 * 32768.0 *
+                        sin(2 * M_PI * freq * ((float) i/format.rate)) * volume);
+
+                if (i < format.rate*fade_time){
+                     sample*=i/(format.rate*fade_time);
+                } else if (i >format.rate*(length-fade_time)){
+                     sample*=(format.rate*length-i)/(format.rate*fade_time);
+                        }
+
+                /* Put the same stuff in left and right channel */
+                buffer[4*i] = buffer[4*i+2] = sample & 0xff;
+                buffer[4*i+1] = buffer[4*i+3] = (sample >> 8) & 0xff;
+        }
+        ao_play(device, buffer, buf_size);
+
+        /* -- Close and shutdown -- */
+        ao_close(device);
+        ao_shutdown();
+        delete buffer;
+
+}
+
+/*
+ * Convert a pitch from an interval in semitones above a4
+ * to Hz.
+ */
+float semitonesToHz(double t){
+        return a4*pow(2,t/12);
+}
+
+float noteToHz(string note){
+    istringstream stream(note);
+
+    // need to initalize it.  Run from c to b, none of this a minor
+    // nonsense.
+
+    char c;
+    stream >> c;
+    int interval=notes[c];
+
+    while (stream >> c){
+        if (c=='#')
+            ++interval;
+        else if (c=='b')
+            --interval;
+        else if (c >='0' && c <='9'){
+            interval+=((c-'0')-4)*12;
+        }
+
+    }
+
+
+    return semitonesToHz(interval);
+
+
+   
+}
+
+/* Initialize stuff, like the map of note names to pitch values */
+void init(){
+    notes['c']=-9;
+    notes['d']=-7;
+    notes['e']=-5;
+    notes['f']=-4;
+    notes['g']=-2;
+    notes['a']=0;
+    notes['b']=2;
+}
+
+int main(int argc, char *argv[]){
+    init();
+
+
+    char c;
+    string options="n:f:v:d:h"; // note , frequency, volume, duration, help
+    while ((c = getopt(argc, argv,options.c_str())) != -1){
+        switch (c){
+            case 'n':
+                frequency=noteToHz(string(optarg));
+                break;
+            case 'f':
+                frequency=atof(optarg);
+                if (frequency==0){
+                    cout << argv[0] << ": invalid frequency" << endl;
+                    exit(1);
+                }
+                break;
+            case 'v':
+                volume=atof(optarg);
+                if (volume==0){
+                    cout << argv[0] << ": invalid volume" << endl;
+                    exit(2);
+                }
+                break;
+            case 'd':
+                duration=atof(optarg);
+                if (duration==0){
+                    cout << argv[0] << ": invalid duration" << endl;
+                    exit(3);
+                }
+                break;
+            case 'h':
+                    cout << "You want help?\n";
+                    exit(0);
+                break;
+        }
+    }
+
+    play(frequency,duration,volume);
+  //  play(noteToHz(string(argv[1])),atof(argv[2]),1);
+    
+
+//    play(880,2,0.5);
+//    play(880,1,0.1);
+}
+
