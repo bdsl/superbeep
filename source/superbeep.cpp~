@@ -13,13 +13,11 @@ using namespace std;
 // General Public Licence version 3, as published by the Free Software
 // Foundation
 
-
-
 // A program to beep. Using gnu getopt parsing options, and stealing
 // code from ao_example, to use libao. Will read note names in
 // scientific pitch notation, as well as lengths and volumes.  Should
 // fade in and out quickly at begining and end to prevent clicks and
-// pops. May be able to produce multiple notes at one time.
+// pops.
 
         float a4=440;
         float fade_time = 0.005; // time in seconds to fade in and out of each note.

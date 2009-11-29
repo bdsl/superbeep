@@ -176,10 +176,5 @@ int main(int argc, char *argv[]){
     }
 
     play(frequency,duration,volume);
-  //  play(noteToHz(string(argv[1])),atof(argv[2]),1);
-    
-
-//    play(880,2,0.5);
-//    play(880,1,0.1);
 }
 
