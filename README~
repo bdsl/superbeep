@@ -17,8 +17,6 @@ Install dependancies, if you don't already have them:
 On ubuntu, and probably most debian-based systems, you can do:
         apt-get install build-essential libao-dev libao2
 
-Run 'make' to compile the executable.
-
 
 Usage:
 
