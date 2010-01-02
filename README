@@ -53,5 +53,7 @@ Options:
                 time in seconds
                 
 These options make it very easy to write a shell script to play a
-tune. Examples are encluded that play an A minor harmonic scale, a
-blue scale of chords, and Old Macdonald Had a Farm. 
+tune. Examples are encluded that play an A minor harmonic scale,
+a blues scale of chords, part of The Blue Danube, and Old Macdonald
+Had a Farm.
+

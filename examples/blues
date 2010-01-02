@@ -1,3 +1,5 @@
+#!/bin/sh
+
 ./superbeep -n  c4 -d 3  & ./superbeep -n  e4 -d 3 & ./superbeep -n g4 -d 3
 ./superbeep -n  c4 -d 3  & ./superbeep -n  e4 -d 3 & ./superbeep -n g4 -d 3
 ./superbeep -n  c4 -d 3  & ./superbeep -n  e4 -d 3 & ./superbeep -n g4 -d 3

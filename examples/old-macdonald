@@ -1,3 +1,5 @@
+#!/bin/sh
+
 ./superbeep -n  bb4 0.5
 ./superbeep -n  bb4 0.5
 ./superbeep -n  bb4 0.5
