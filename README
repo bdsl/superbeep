@@ -28,7 +28,7 @@ Options:
         -n NOTE
                 Beep in the NOTE specified, where NOTE is in
                 scientific pitch notation. It should start with a
-                note letter between a and c, then optionally one or
+                note letter between a and g, then optionally one or
                 more `#' or 'b' symbols, and then an optional octave
                 number.
 
